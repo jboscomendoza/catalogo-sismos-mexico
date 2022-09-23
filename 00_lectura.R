@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(lubridate)
+library(Hmisc)
 
 # Requiere descarga del catálogo de sismos del Sistema Sismológico
 # Nacional de México
@@ -15,22 +16,24 @@ sismos_df <-
   filter(!is.na(Magnitud)) %>% 
   select(Fecha, Magnitud, "Localizacion" = `Referencia de localizacion`) %>% 
   mutate(
-    Periodo = year(Fecha),
-    Mes = month(Fecha, label = TRUE),
-    Mes_num = month(Fecha),
-    Entidad = str_extract(Localizacion, ".{4}$") %>% 
-      str_remove_all("[[:punct:]]") %>% 
-      str_squish()
+    Periodo = lubridate::year(Fecha),
+    Mes = lubridate::month(Fecha, label = TRUE),
+    Mes_num = lubridate::month(Fecha),
+    Entidad = stringr::str_extract(Localizacion, ".{4}$") %>% 
+      stringr::str_remove_all("[[:punct:]]") %>% 
+      stringr::str_squish()
   )  %>% 
   rename("Epicentro" = Localizacion) %>% 
-  mutate(Magnitud_cats = Hmisc::cut2(Magnitud, cuts = seq(4, 9, by = 1)),
-         Magnitud_cats = as.numeric(Magnitud_cats),
-         Magnitud_cats = case_when(
-           Magnitud_cats == 1 ~ "4 a 4.9",
-           Magnitud_cats == 2 ~ "5 a 5.9",
-           Magnitud_cats == 3 ~ "6 a 6.9",
-           Magnitud_cats == 4 ~ "7 a 7.9",
-           Magnitud_cats == 5 ~ "8 a 9"
-         )) 
+  mutate(
+    Magnitud_cats = Hmisc::cut2(Magnitud, cuts = seq(4, 9, by = 1)),
+    Magnitud_cats = as.numeric(Magnitud_cats),
+    Magnitud_cats = case_when(
+      Magnitud_cats == 1 ~ "4 a 4.9",
+      Magnitud_cats == 2 ~ "5 a 5.9",
+      Magnitud_cats == 3 ~ "6 a 6.9",
+      Magnitud_cats == 4 ~ "7 a 7.9",
+      Magnitud_cats == 5 ~ "8 a 9"
+    )
+  ) 
 
 write_csv(sismos_df, "sismos_df.csv")

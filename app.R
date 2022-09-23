@@ -9,7 +9,7 @@ sismos <- read.csv("sismos_df.csv")
 sismos[["Mes"]] <- factor(sismos[["Mes"]])
 sismos[["Mes"]] <- reorder(sismos[["Mes"]], sismos[["Mes_num"]])
 
-paleta <- brewer.pal(5, "Purples")
+paleta <- RColorBrewer::brewer.pal(5, "Purples")
 
 # Funs ####
 tabla_sismos <- function(datos, rango_periodo, rango_magnitud){
